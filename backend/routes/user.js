@@ -1,14 +1,22 @@
 const express=require('express');
 const  router=express.Router();
-const schema =require( '../zod.js');
+const  authMiddleware=require('../authMiddleware.js');
+const {updateSchema}=require('../zod.js');
+const { userSchema, loginSchema } = require('../zod.js');
 const userModel=require('../db.js');
 const jwt=require('jsonwebtoken');
 const secretKey=require('../config.js');
 
+router.get("/signin",async(req,res)=>{
+   const user= await userModel.find({
+        
+    })
+    return res.send(JSON.stringify(user));
+})
 
 router.post('/signup',async (req,res)=>{
     const body=req.body;
-    const result=schema.safeParse(body);
+    const result=userSchema.safeParse(body);
     if(!result.success){
       return   res.status(400).json({
             error:result.error.errors,
@@ -45,8 +53,49 @@ return res.status(200).json({
 
 })
 
+
 router.post('/login',async (req,res)=>{
+    const result=loginSchema.safeParse(req.body);
+    if(!result.success){
+        return res.status(400).json({
+            error:result.error.errors,
+            message:"Invalid inputs"
+        })
+    }
+    const user=await userModel.findOne({username:req.body.username,
+        password:req.body.password
+    });
+    if(!user){
+        return res.status(400).json({
+            message:"wrong username or password"
+        })
+    }
+    const user_id=user._id;
+    const token=jwt.sign({user_id},secretKey);
+   
+return res.status(200).json({
+    message:"login successful",
+    token:token
+})
+})
+
+router.put('/update',authMiddleware,async(req,res)=>{
+    const {success}=updateSchema.safeParse(req.body);
+    if(!success){
+        return res.status(400).json({
+            message: "Invalid input",
+        })
+    }
+    await userModel.updateOne( {
+       
+        _id: req.user_id
+    },req.body);
+
     
+    return res.status(200).json({
+        message:"updated successfully"
+    })
+
 })
 
 
