@@ -55,7 +55,7 @@ export function Signin(){
                 }
 
                 }} text="Sign in"/>
-                <BottomWarning text="Don't have an account?" buttonText="Sign up" to="/signup"/>
+                <BottomWarning text="Don't have an account?" buttonText="Sign up" to="/"/>
 
             
             </div>

@@ -19,7 +19,7 @@ function App2(){
     <div>
     <div>
 <Routes>
-  <Route path="/signup" element={<Signup></Signup>}></Route>
+  <Route path="/" element={<Signup></Signup>}></Route>
   <Route path="/signin" element={<Signin/>}></Route>
   <Route path="/dashboard" element={<Dashboard/>}></Route>
   <Route path="/transfer" element={<Transfer/>}></Route>
