@@ -2,18 +2,36 @@ const express = require("express");
 const accountRouter = express.Router();
 const authMiddleware = require("../authMiddleware.js");
 const { Account } = require("../db.js");
+const { User } = require("../db.js");
 const { mongoose } = require("mongoose");
+const { transferSchema } = require("../zod.js");
 
 accountRouter.get("/balance", authMiddleware, async (req, res) => {
   const account = await Account.findOne({
     _id: req.user_id,
   });
+  const user = await User.findOne({
+    _id: req.user_id,
+  });
   return res.json({
     balance: account.balance,
+    name: user.firstname,
   });
 });
 
-accountRouter.post("/sendmoney", authMiddleware, async (req, res) => {
+accountRouter.post("/transfer", authMiddleware, async (req, res) => {
+  
+  const result = transferSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({
+      error: result.error.errors,
+      message: "Invalid inputs",
+    });
+  }
+
+
+
+
   const session = await mongoose.startSession();
 
   session.startTransaction();

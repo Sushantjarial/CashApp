@@ -1,7 +1,7 @@
 const zod = require("zod");
 
 const userSchema = zod.object({
-  username: zod.string().trim().min(3).max(20),
+ 
   password: zod.string().trim().min(8),
   email: zod.string().email(),
   firstname: zod.string().trim().min(3).max(20),
@@ -9,7 +9,7 @@ const userSchema = zod.object({
 });
 
 const loginSchema = zod.object({
-  username: zod.string().trim().min(3).max(20),
+  email: zod.string().email(),
   password: zod.string().trim().min(8),
 });
 
@@ -19,8 +19,15 @@ const updateSchema = zod.object({
   email: zod.string().email().optional(),
 });
 
+const transferSchema = zod.object({
+  to: zod.string(),
+  amount: zod.number().positive(),
+});
+
+
 module.exports = {
   userSchema,
   loginSchema,
   updateSchema,
+  transferSchema
 };

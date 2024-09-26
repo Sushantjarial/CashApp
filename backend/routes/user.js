@@ -8,7 +8,7 @@ const { User, Account } = require("../db.js");
 const jwt = require("jsonwebtoken");
 const { secretKey } = require("../config.js");
 
-router.get("/signin", async (req, res) => {
+router.get("/allusers", async (req, res) => {
   const user = await User.find({});
   return res.send(JSON.stringify(user));
 });
@@ -24,7 +24,7 @@ router.post("/signup", async (req, res) => {
   }
 
   const check = await User.find({
-    $or: [{ username: body.username }, { email: body.email }],
+      email: body.email 
   });
 
   if (check.length > 0) {
@@ -33,11 +33,11 @@ router.post("/signup", async (req, res) => {
     });
   }
   const user = new User({
-    username: body.username,
+
     password: body.password,
     email: body.email,
     firstname: body.firstname,
-    lastname: body.lastname,
+    lastname: body.lastname
   });
 
   await User.create(user);
@@ -51,10 +51,11 @@ router.post("/signup", async (req, res) => {
   return res.status(200).json({
     message: "User created successfully",
     token: token,
+    id: user_id,
   });
 });
 
-router.post("/login", async (req, res) => {
+router.post("/signin", async (req, res) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
     return res.status(400).json({
@@ -63,12 +64,12 @@ router.post("/login", async (req, res) => {
     });
   }
   const user = await User.findOne({
-    username: req.body.username,
+    email: req.body.email,
     password: req.body.password,
   });
   if (!user) {
     return res.status(400).json({
-      message: "wrong username or password",
+      message: "wrong email or password",
     });
   }
   const user_id = user._id;
@@ -77,6 +78,7 @@ router.post("/login", async (req, res) => {
   return res.status(200).json({
     message: "login successful",
     token: token,
+    id: user_id,
   });
 });
 
@@ -87,11 +89,14 @@ router.put("/update", authMiddleware, async (req, res) => {
       message: "Invalid input",
     });
   }
+
   await User.updateOne(
     {
       _id: req.user_id,
     },
-    req.body
+    {
+      ...req.body
+    }
   );
 
   return res.status(200).json({
@@ -101,28 +106,34 @@ router.put("/update", authMiddleware, async (req, res) => {
 
 router.get("/information", authMiddleware, async (req, res) => {
   const filter = req.query.filter || "";
+
   const users = await User.find({
     $or: [
       {
         firstname: {
           $regex: filter,
+          $options: "i", // case-insensitive
         },
       },
       {
         lastname: {
           $regex: filter,
+          $options: "i", // case-insensitive
         },
       },
     ],
   });
+
   return res.json({
     users: users.map((user) => {
       return {
-        username: user.username,
+        id: user._id,
         firstname: user.firstname,
         lastname: user.lastname,
       };
-    }),
+    
+    })
+    
   });
 });
 

@@ -4,15 +4,7 @@ const { connectionString } = require("./config");
 mongoose.connect(connectionString);
 
 const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    minlength: 3,
-    maxlength: 20,
-  },
+ 
   password: {
     type: String,
     required: true,
